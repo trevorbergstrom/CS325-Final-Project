@@ -27,6 +27,7 @@
 void perfectMatching(const std::vector<std::vector<int> >& D, std::vector<std::vector<int> >& M){
 	//Create list of odd degree vertices from MST
 	std::list<int> odds; 
+	std::cout << "Odds list contains " ; 
 	for(int ii=0; ii < D.size(); ii++){
 		int edgeSum = 0; 
 		for(int jj=0; jj < D.size(); jj++){
@@ -34,9 +35,10 @@ void perfectMatching(const std::vector<std::vector<int> >& D, std::vector<std::v
 		}
 		if(edgeSum % 2 != 0){
 			odds.push_front(ii); 
-			std::cout << "list contains " << ii << "\n";
+			std::cout << ii << ", " ;
 		}
 	}
+	std::cout << "\n"; 
 	//Match and remove all odd vertices from list	
 	while( !odds.empty() ){
 		int v1 = odds.front();
