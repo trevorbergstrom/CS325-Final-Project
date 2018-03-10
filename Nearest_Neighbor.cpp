@@ -203,6 +203,52 @@ int length_of_path(std::vector<int> path, std::vector<std::vector<int>> distance
     return total_distance;
 }
 
+std::vector<int> tourSwap(std::vector<int> tour, int i, int k) {
+    int size = (int) tour.size();
+    std::vector<int> tourCopy;
+    
+    for(int j = 0; j <= i - 1; j++) {
+        tourCopy.push_back(tour[j]);
+    }
+    
+    int d = 0;
+    
+    for(int j = i; j <= k; j++) {
+        tourCopy.push_back(tour[k - d]);
+        d++;
+    }
+    for(int j = k + 1; j < size; j++) {
+        tourCopy.push_back(tour[j]);
+    }
+    
+    return tourCopy;
+}
+
+std::vector<int> tourOpt(std::vector<int> tour, std::vector<std::vector<int>> distances, int lengthOfPath) {
+    int size = (int) tour.size();
+    
+    int improve = 0;
+    int bestDistance = lengthOfPath;
+    
+    while(improve < 5) {
+        
+        for(int i = 0; i < size - 1; i++) {
+            for(int k = i + 1; k < size; k++) {
+                std::vector<int> newTour = tourSwap(tour, i, k);
+                int newDist = length_of_path(newTour, distances);
+                
+                if(newDist < bestDistance) {
+                    improve = 0;
+                    tour = newTour;
+                    bestDistance = newDist;
+                }
+            }
+        }
+        improve++;
+    }
+    return tour;
+}
+
 int main(int argc, const char * argv[]) {
     
     std::string file = "ex1.txt";
@@ -228,5 +274,12 @@ int main(int argc, const char * argv[]) {
     float diff2 ((float)stop-(float)start);
     std::cout << "Final path length for Greedy2: " << length2 << " found in : " << diff2 / CLOCKS_PER_SEC << " seconds\n";
     
+     start = clock();
+    std::vector<int> optimized_tour = tourOpt(myPath2, distances, length2);
+    int length3 = length_of_path(optimized_tour, distances);
+    stop = clock();
+    float diff3 ((float)stop-(float)start);
+    std::cout << "Final path length for Greedy2 with 2-opt optimization: " << length3 << " found in : " << diff3 / CLOCKS_PER_SEC << " seconds\n";
+
     return 0;
 }
