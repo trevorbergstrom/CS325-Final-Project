@@ -97,6 +97,18 @@ void MST(const std::vector<std::vector<int> >& D, std::vector<std::vector<int> >
     }
 }
 
+int findNumEdges(std::vector<std::vector<int> > &m) {
+    int size = (int) m.size();
+    int sum = 0;
+    
+    for(int i = 0; i < size; i++) {
+        for(int j = 0; j < size; j++) {
+            sum += m[i][j];
+        }
+    }
+    return sum;
+}
+
 int getDegree(std::vector<int> adj) {
     int sum = 0;
     for(int i = 0; i < adj.size(); i++) {
@@ -137,7 +149,6 @@ void eulerTour4(std::vector<std::vector<int> > &m, std::vector<int> &circuit) {
 }
 
 
-
 /*********************************************************************
 ** Function: ham_path
 ** Description: Takes in a Euler circuit and finds a Hamiltonian path
@@ -145,11 +156,10 @@ void eulerTour4(std::vector<std::vector<int> > &m, std::vector<int> &circuit) {
 ** Input: 	pass by reference the vector holding the Euler circuit
 **			pass by reference the empty vector to hold the ham path
 **			which is of length n+1, where n is the number of vertices
-**			pass by reference an int to hold the length of the ham path
 **			pass by reference the matrix of distances between vertices
 **			pass by number the number of vertices in the graph
 ** Output:	the ham path vector will be populated
-**			the tspLength int will be populated
+**			returns the length of the path
 *********************************************************************/
 
 int ham_path(std::vector<int> &EC, std::vector<int> &HP, std::vector< std::vector<int> > &D, int numOfVertices)
@@ -190,7 +200,7 @@ int ham_path(std::vector<int> &EC, std::vector<int> &HP, std::vector< std::vecto
 	//run through each edge in the Hamiltonian path and add the value to the overall Hamiltonian path length
 	for (int i = 0; i < HP.size()-1; i++)
 	{
-	hamLength = hamLength + D[HP[i]][i+1];
+	hamLength = hamLength + D[HP[i]][HP[i+1]];
 	}
 	
 	//return Hamiltonian path length
