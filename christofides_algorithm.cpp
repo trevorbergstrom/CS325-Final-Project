@@ -105,110 +105,38 @@ int getDegree(std::vector<int> adj) {
     return sum;
 }
 
-/* THIS FUNCTION DOES NOT WORK WITH INPUT FILES */
-void eulerTour(std::vector<std::vector<int> > &m, std::vector<int> &tour) {
-    std::vector<int> numNeighbors; //vector that contains the number of neighbors of each node
-    bool eulerTourPossible = true;
-    
-    for(int i = 0; i < m.size(); i++) { //fill num neighbors while checking the degree of each node
-        int degree = getDegree(m[i]);
-        numNeighbors.push_back(degree);
-        if((degree % 2) != 0) {
-            eulerTourPossible = false;
-        }
-    }
-    
-    std::stack<int> eulerStack; //stack to hold nodes passed through
-    int i = 0;
-    int j = 0;
-    
-    while(!eulerStack.empty() || numNeighbors[i] != 0) { //loop while the stack is not empty and the current node has neighbors
-        
-        if(numNeighbors[i] == 0) { //if the current node has no neighbors
-            tour.push_back(i); //add this node to the tour
-            i = eulerStack.top(); //pop a node off the stack as the current node
-            eulerStack.pop();
-        } else { //if the current node has neighbors
-            bool found = false;
-            
-            while(found != true) { //loop through its adjacency vector
-                if(j >= m[i].size()) {
-                    j = 0;
-                }
-                
-                if(m[i][j] == 2) { //if the node has a loop with itself
-                    eulerStack.push(i); //push this node on the stack
-                    m[i][j] = 0; //remove edge in adj matrix
-                    m[j][i] = 0;
-                    numNeighbors[i] -= 2; //reduce the number of nieghbors
-                    found = true;
-                } else if(m[i][j] == 1) { //if the node has a edge between another node
-                    if(numNeighbors[j] > 1 || numNeighbors[i] == 1) {
-                        eulerStack.push(i); //push current node on the stach
-                        numNeighbors[i] -= 1;
-                        numNeighbors[j] -= 1; //reduce the number of neighbors
-                        m[i][j] = 0;//remove edge in adj matrix
-                        m[j][i] = 0;
-                        i = j; //set the current node as the neighbor selected
-                        found = true;
-                    } else {
-                        j++;
-                    }
-                } else {
-                    j++;
-                }
-            }
-        }
-    }
-    tour.push_back(0);
-}
-
-int findNumEdges(std::vector<std::vector<int> > &m) {
-    int size = (int) m.size();
-    int sum = 0;
-    
-    for(int i = 0; i < size; i++) {
-        for(int j = 0; j < size; j++) {
-            sum += m[i][j];
-        }
-    }
-    return sum;
-}
-
-/* THIS FUNCTION WORKS WITH INPUT FILES and main from christofides.cpp */
-void eulerTour2(std::vector<std::vector<int> > &m, std::vector<int> &tour) {
+void eulerTour4(std::vector<std::vector<int> > &m, std::vector<int> &circuit) {
     int numNodes = (int) m[0].size();
     int i = 0;
     int j = 0;
     bool done = false;
     int numEdgesTotal = (findNumEdges(m) / 2);
-    if((numEdgesTotal % 2) != 0) {
+/*    if((numEdgesTotal % 2) != 0) {
         numEdgesTotal -= 1;
-    }
+    }*/
     int numEdgesVisited = 0;
-    
-    while(done == false) {
-        
-        while(m[i][j] == 0) {
-            if(numEdgesVisited >= numEdgesTotal) {
-                done = true;
-                break;
-            }
-            if(j == numNodes) {
-                j = 0;
-            } else {
-                j++;
-            }
+    std::vector<int> tempStack;
+    while(numEdgesVisited < numEdgesTotal || !tempStack.empty()) {
+
+        for(int j = 0; j < numNodes; j++){
+                if(m[i][j] != 0){
+                       m[i][j] --;
+                       m[j][i] --;
+                        numEdgesVisited++;
+                       tempStack.push_back(i);
+                        i = j;
+                        break;
+                }else if (j == numNodes -1){
+                        circuit.push_back(i);
+                        i = tempStack.back();
+                        tempStack.pop_back();
+                }
         }
-        
-        m[i][j] = 0;
-        m[j][i] = 0;
-        numEdgesVisited++;
-        tour.push_back(i);
-        i = j;
     }
-    tour.push_back(0);
+    circuit.push_back(0);
 }
+
+
 
 /*********************************************************************
 ** Function: ham_path
@@ -224,7 +152,7 @@ void eulerTour2(std::vector<std::vector<int> > &m, std::vector<int> &tour) {
 **			the tspLength int will be populated
 *********************************************************************/
 
-void ham_path(std::vector<int> &EC, std::vector<int> &HP, std::vector< std::vector<int> > &D, int numOfVertices, int* &hamLength)
+int ham_path(std::vector<int> &EC, std::vector<int> &HP, std::vector< std::vector<int> > &D, int numOfVertices)
 {
 	/*****make the Hamiltonian path*****/
 	
@@ -257,13 +185,16 @@ void ham_path(std::vector<int> &EC, std::vector<int> &HP, std::vector< std::vect
 	/*****calculate the length of the path*****/
 	
 	//initialize the length of the Hamiltonian path to 0
-	hamLength = 0;
+	int hamLength = 0;
 	
 	//run through each edge in the Hamiltonian path and add the value to the overall Hamiltonian path length
 	for (int i = 0; i < HP.size()-1; i++)
 	{
 	hamLength = hamLength + D[HP[i]][i+1];
 	}
+	
+	//return Hamiltonian path length
+	return hamLength;
 }
 
 int main(int argc, char** argv)
@@ -328,7 +259,7 @@ int main(int argc, char** argv)
 	//Create the Euler tour
 	std::vector<int> tour;
 	std::cout << "starting Euler tour" << std::endl;
-	eulerTour2(M, tour);
+	eulerTour4(M, tour);
 	
 	//Print the Euler tour
 	std::cout << "Euler tour" << std::endl;
@@ -340,15 +271,14 @@ int main(int argc, char** argv)
 	//Create the Hamiltonian path
 	std::vector<int> hamPath;
 	std::cout << "starting Hamiltonian path" << std::endl;
-	int* hamLength = 0;
-	ham_path(tour, hamPath, Distances, city.size(), hamLength);
+	int tourLength = ham_path(tour, hamPath, Distances, city.size());
 	
 	//print solution
-	std::cout << "tsp length: " << hamLength << std::endl;
+	std::cout << "tsp length: " << tourLength << std::endl;
 	for (int i = 0; i < hamPath.size(); i++)
 	{
 		std::cout << hamPath[i] << ", ";
 	}
-	
-	delete hamLength;
+	std::cout << std::endl;
+	std::cout << std::endl;
 }
