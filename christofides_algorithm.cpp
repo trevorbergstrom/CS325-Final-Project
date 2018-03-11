@@ -25,6 +25,7 @@
 //a min spanning tree as arg. 
 //Modifies the MST by pairing all odd degree vertices s.t. 
 //there are no vertices with odd degree after
+
 void perfectMatching(const std::vector<std::vector<int> >& D, std::vector<std::vector<int> >& M){
 	//Create list of odd degree vertices from MST
 	std::list<int> odds; 
@@ -67,12 +68,13 @@ void MST(const std::vector<std::vector<int> >& D, std::vector<std::vector<int> >
     std::vector<int> Q(D.size(), 0); //Vertices not yet included in graph = 0 
     int totalVertices = D.size(); 
     Q[0] = 1; //Add random vertex to graph, I chose vertex 0
-    totalVertices --; 
+    totalVertices --;
     while (totalVertices > 0){
+		std::cout << totalVertices << std::endl;
         for(int ii=0; ii < D.size(); ii++){
             if(Q[ii] == 1){
                 for(int jj=0; jj < D.size(); jj++){
-                    if(D[ii][jj] < C[ii] && Q[jj]==0){
+                    if(D[ii][jj] < C[jj] && Q[jj]==0){
                         C[jj] = D[ii][jj]; 
                         E[jj] = ii; 
                     }
@@ -211,6 +213,7 @@ int main(int argc, char** argv)
 {
     clock_t begin = std::clock(); 
     std::ifstream inFile(argv[1]);
+	std::string fileName = argv[1];
     std::vector<int> city;  
     std::vector<int> xCoords;  
     std::vector<int> yCoords;  
@@ -239,7 +242,7 @@ int main(int argc, char** argv)
         //std::cout << '\n';  
     }
     //std::cout << '\n';  
-
+	std::cout << "distance matrix populated" << std::endl;
     std::vector<std::vector<int> > M(
 		cityCount, std::vector<int>(cityCount, 0 )); 
 
@@ -291,4 +294,24 @@ int main(int argc, char** argv)
 	}
 	std::cout << std::endl;
 	std::cout << std::endl;
+	
+	//output run time
+	double duration;
+	duration = (std::clock() - begin) / (double) CLOCKS_PER_SEC;
+	std::cout << "run time: " << duration << std::endl;
+	
+	//Write the data to file
+
+	std::ofstream outputFile;
+	std::string newFileName;
+	newFileName = fileName + ".tour";
+	std::cout << "new file name: " << newFileName << std::endl;
+	outputFile.open(newFileName.c_str());
+	
+	outputFile << tourLength << "\n";
+	for (int i = 0; i < hamPath.size() - 1; i++)
+	{
+		outputFile << hamPath[i] << "\n";
+	}
+	outputFile.close();
 }
